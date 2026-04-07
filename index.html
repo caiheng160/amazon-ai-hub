@@ -339,7 +339,7 @@ input[type=range].om2-slider::-webkit-slider-thumb {
                 <button onclick="trackLogistics()" class="text-[var(--color-blue)] hover:scale-110 ml-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
             </div>
             <div class="flex items-center bg-[var(--bg-input)] rounded-full px-2.5 py-0.5 border border-[var(--border-color)]">
-                <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold mr-2 tracking-tighter">✨ chatGPT 5.1 PRO</span>
+                <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold mr-2 tracking-tighter">✨4-7</span>
                 <button onclick="toggleTheme()" class="hover:opacity-70 text-[12px]">🌙</button>
             </div>
            <!-- // 架构优化：放大时钟字号与容器宽度 -->
@@ -3089,20 +3089,15 @@ Output ONLY a Markdown table, exactly as follows:
 
                         const previewTr = document.createElement('tr');
                         previewTr.id = `m4_previewTr_${i}`;
-                        previewTr.className = 'hidden bg-[#f8fafc] transition-all duration-300';
-                        
                         previewTr.innerHTML = `
                             <td colspan="100%" class="p-4 border-b border-[var(--border-color)]">
                                 <div class="flex flex-col gap-3 items-center">
                                     <div class="w-full flex justify-between items-center bg-white px-4 py-2 border border-slate-200 rounded-lg shadow-sm flex-wrap gap-2">
-                                        <span class="text-[11px] font-bold text-[var(--color-teal)] shrink-0">🎨 局部精修工作流</span>
-                                        <div class="w-full flex justify-between items-center bg-white px-4 py-2 border border-slate-200 rounded-lg shadow-sm flex-wrap gap-2">
-                                        <span class="text-[11px] font-bold text-[var(--color-teal)] shrink-0">🎨 局部精修工作流</span>
+                                        <span class="text-[11px] font-bold text-[var(--color-teal)] shrink-0">🎨 局部精修与排版工作流</span>
                                         <div class="flex gap-2 flex-wrap">
                                             <button id="m4_btnEdit_${i}" onclick="M4_Tools.toggleEdit(${i})" class="apple-btn apple-btn-secondary !py-1 !px-2 text-[10px]">开启红笔涂鸦</button>
                                             <button onclick="OM2_CanvasModule.clearCanvas('m4_${i}')" class="apple-btn bg-red-50 hover:bg-red-100 text-red-500 !py-1 !px-2 text-[10px]">清除</button>
                                             
-                                            <!-- 🚀 新增：新品 M4 的指针显示/隐藏按钮 -->
                                             <button id="m4_btnPointer_${i}" onclick="M4_Tools.togglePointer(${i})" class="apple-btn border-blue-500 text-blue-600 bg-blue-50 !py-1 !px-2 text-[10px] transition-opacity" title="隐藏或显示引线与圆点">📍 指针</button>
 
                                             <button onclick="M4_Tools.executePRO(${i})" class="apple-btn bg-slate-800 text-yellow-400 !py-1 !px-2 text-[10px]"><svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>PRO 精修</button>
@@ -3110,6 +3105,21 @@ Output ONLY a Markdown table, exactly as follows:
                                             <button onclick="M4_Tools.download(${i})" class="apple-btn btn-teal !py-1 !px-2 text-[10px] shadow-md hover:-translate-y-0.5 transition-transform">下载最终视觉</button>
                                         </div>
                                     </div>
+                                    <div class="relative w-full max-w-[460px] aspect-square border border-slate-200 rounded-lg overflow-hidden bg-[var(--bg-input)] shadow-inner">
+                                        <div class="m4-loader hidden flex-col items-center justify-center text-[var(--color-teal)] absolute z-10 bg-white/80 w-full h-full backdrop-blur-sm">
+                                            <div class="loader mb-3 border-[var(--color-teal)] w-8 h-8"></div>
+                                            <span class="text-[12px] font-semibold text-slate-800 m4-status">处理中...</span>
+                                        </div>
+                                        <canvas id="om2_canvas_m4_${i}" class="absolute top-0 left-0 w-full h-full object-cover cursor-crosshair hidden"></canvas>
+                                        <div id="m4_overlay_${i}" class="absolute inset-0 bg-transparent flex flex-col hidden pointer-events-none z-20 transition-opacity"></div>
+                                    </div>
+                                    <div class="w-full flex gap-2">
+                                        <input type="text" id="m4_refineInput_${i}" class="apple-input flex-1 text-[11px] border-slate-300" placeholder="定向局部重绘指令 (如: 擦除红色涂抹区域的旧字，智能还原背景)...">
+                                        <button onclick="M4_Tools.executeInpaint(${i})" class="apple-btn btn-orange !py-1 !px-4 text-[11px]">执行重绘</button>
+                                    </div>
+                                    <div id="m4_sopTable_${i}" class="w-full mt-2 hidden"></div>
+                                </div>
+                            </td>
                         `;
                         tr.parentNode.insertBefore(previewTr, tr.nextSibling);
 
@@ -4663,11 +4673,36 @@ function syncOldThumbnails() {
         // ================== 🚀 新增：无压缩包本地文件夹直接导出引擎 ==================
         // ================== 🚀 新增：无压缩包本地文件夹直接导出引擎 (含防爆兜底) ==================
         // 🚀 修复 BUG 1：补全缺失的源码与表格导出兜底函数
-        function executeSysDownload() {
-            const htmlContent = document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], {type: 'text/html;charset=utf-8'});
-            saveAs(blob, `GeekMatrix_SourceBackup_${Date.now()}.html`);
-            showToast("✅ 源码与指令架构已完整备份下载");
+ async function executeSysDownload() {
+            showToast("📦 正在提取最纯净的底层源码...");
+            try {
+                // 🚀 核心修复 1：通过直接请求原文件路径，绕过浏览器的动态 DOM 污染
+                const response = await fetch(window.location.href);
+                let htmlContent = await response.text();
+                
+                // 🚀 核心修复 2：正则洗稿，彻底铲除沙盒环境在传输层面可能硬塞的底层拦截脚本
+                htmlContent = htmlContent.replace(/<script>\(function\(firebaseConfig[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(function\(\)\{'use strict';var h=typeof[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>let realOriginalGetUserMedia[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(\(function\(modelInformation\)[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(function\(\)\{'use strict';function a\(\)[\s\S]*?<\/script>\n/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(function\(\) \{\s*const originalConsoleLog[\s\S]*?<\/script>/gi, '');
+
+                const blob = new Blob([htmlContent], {type: 'text/html;charset=utf-8'});
+                saveAs(blob, `GeekMatrix_PureSource_${Date.now()}.html`);
+                showToast("✅ 绝对纯净的原生源码已完整备份下载！");
+            } catch (err) {
+                // 本地离线环境断网兜底方案：使用 outerHTML 配合深度大扫除
+                let htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                htmlContent = htmlContent.replace(/<script>\(function\(firebaseConfig[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(function\(\)\{'use strict'[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>let realOriginalGetUserMedia[\s\S]*?<\/script>/gi, '');
+                htmlContent = htmlContent.replace(/<script>\(function\(\) \{\s*const originalConsoleLog[\s\S]*?<\/script>/gi, '');
+                
+                const blob = new Blob([htmlContent], {type: 'text/html;charset=utf-8'});
+                saveAs(blob, `GeekMatrix_CleanedSource_${Date.now()}.html`);
+                showToast("✅ 纯净源码已备份 (本地兜底模式)");
+            }
         }
         function executeDataExport() {
             showToast("⚠️ 该快捷导出(Excel/PPT)暂未挂载，请使用下拉列表底部的【原生文件夹】统一导出全案！");
