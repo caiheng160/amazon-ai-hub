@@ -338,13 +338,9 @@ input[type=range].om2-slider::-webkit-slider-thumb {
                 <input type="text" id="logistics-number" placeholder="单号..." class="bg-transparent text-[10px] w-20 outline-none text-[var(--text-primary)] px-1 placeholder-[var(--text-muted)]">
                 <button onclick="trackLogistics()" class="text-[var(--color-blue)] hover:scale-110 ml-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
             </div>
-            <div class="flex items-center gap-2 bg-[var(--bg-input)] rounded-full px-2.5 py-0.5 border border-[var(--border-color)] shadow-sm">
-                <div class="flex items-center gap-1 border-r border-[var(--border-color)] pr-2">
-                    <span class="text-[10px] font-bold text-[var(--color-orange)]">🔑 Key:</span>
-                    <input type="password" id="sys-api-key" class="bg-transparent text-[10px] w-24 outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] tracking-widest" placeholder="Gemini API Key" onchange="saveApiKey()">
-                </div>
-                <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold tracking-tighter">✨ 5.1 PRO</span>
-                <button onclick="toggleTheme()" class="hover:opacity-70 text-[12px] ml-1">🌙</button>
+            <div class="flex items-center bg-[var(--bg-input)] rounded-full px-2.5 py-0.5 border border-[var(--border-color)]">
+                <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold mr-2 tracking-tighter">✨ chatGPT 5.1 PRO</span>
+                <button onclick="toggleTheme()" class="hover:opacity-70 text-[12px]">🌙</button>
             </div>
            <!-- // 架构优化：放大时钟字号与容器宽度 -->
             <div id="sys-clock" class="font-mono text-[13px] font-medium text-[var(--text-muted)] w-40 text-right hidden lg:block tracking-wide"></div>
@@ -896,7 +892,7 @@ input[type=range].om2-slider::-webkit-slider-thumb {
 
     <script id="main-app-logic">
         const apiKey = "";
-        let apiKey = localStorage.getItem('gemini_api_key') || "";
+        let excelCsvData = "";
         // // MODIFY_START: 满血重铸 V5.36 完整架构级别的 RULES 与 CONFIG 指令矩阵，解除压缩
         const RULES = {
             GLOBAL: "身份：资深跨境电商运营（核心市场欧洲）。本土化规范：外文数字与单位间必须留一个半角空格（如 81 mm），小数点强制使用逗号（如 19,99 €）。要求极简与零废话原则：接到指令后，直接、冷峻地输出最终结果，绝对禁止输出寒暄、问候、过程解释或“好的”、“没问题”、“这就为您生成”等废话。能用 Markdown 表格展示的数据绝对不用文本堆砌；重度使用加粗小标题、列表和代码块来组织信息流。绝不自行脑补数据，缺失关键变量必须在表格中指出。",
@@ -5366,19 +5362,6 @@ function syncOldThumbnails() {
         function closeImageModal() { const m = document.getElementById('image-modal'); m.style.opacity = '0'; setTimeout(() => m.classList.add('hidden'), 300); }
         function updateClock() { const c = document.getElementById('sys-clock'); if(c) c.innerText = new Date().toLocaleString('zh-CN', {hour12:false}); }
         function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-        /* ==================== 🔑 API 密钥持久化逻辑 ==================== */
-        function saveApiKey() {
-            const keyInput = document.getElementById('sys-api-key').value.trim();
-            if (keyInput) {
-                localStorage.setItem('gemini_api_key', keyInput);
-                apiKey = keyInput;
-                showToast("✅ API Key 已加密保存至本地浏览器");
-            } else {
-                localStorage.removeItem('gemini_api_key');
-                apiKey = "";
-                showToast("⚠️ API Key 已清除");
-            }
-        }
         function trackLogistics() { 
             const u = document.getElementById('logistics-provider').value; 
             const n = document.getElementById('logistics-number').value.trim(); 
@@ -5397,17 +5380,14 @@ function syncOldThumbnails() {
 
         setInterval(updateClock, 1000);
         // 🚀 激活自动数据流引擎 (老品主图跨模块克隆)及初始化缓存数据
-window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', () => {
             if (typeof bindImageAutoSync === 'function') bindImageAutoSync();
             
+            // 🚀 新增：页面加载时，从本地存储读取并恢复上次查询的单号
             const savedLogisticsNumber = localStorage.getItem('savedLogisticsNumber');
             if (savedLogisticsNumber) {
                 document.getElementById('logistics-number').value = savedLogisticsNumber;
             }
-
-            // 👇 追加以下两行，用于页面初始化时自动填充已保存的 Key
-            const savedKey = localStorage.getItem('gemini_api_key');
-            if (savedKey) document.getElementById('sys-api-key').value = savedKey;
         });
     </script>
 </body>
