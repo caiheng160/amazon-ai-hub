@@ -888,10 +888,20 @@ input[type=range].om2-slider::-webkit-slider-thumb {
                 <input type="text" id="logistics-number" placeholder="单号..." class="bg-transparent text-[10px] w-20 outline-none text-[var(--text-primary)] px-1 placeholder-[var(--text-muted)]">
                 <button onclick="trackLogistics()" class="text-[var(--color-blue)] hover:scale-110 ml-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></button>
             </div>
-            <div class="flex items-center bg-[var(--bg-input)] rounded-full px-2.5 py-0.5 border border-[var(--border-color)]">
-                <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold mr-2 tracking-tighter">✨ Gemini 3.1 PRO</span>
-                <button onclick="toggleTheme()" class="hover:opacity-70 text-[12px]">🌙</button>
-            </div>
+            <div class="flex items-center gap-2">
+    <div id="api-key-wrapper" class="flex items-center bg-[var(--bg-input)] rounded-full border border-[var(--border-color)] transition-all duration-300 overflow-hidden" style="width: 28px; height: 24px;">
+        <button onclick="const w = document.getElementById('api-key-wrapper'); w.style.width = w.style.width === '28px' ? '150px' : '28px';" 
+                class="flex-shrink-0 flex items-center justify-center hover:opacity-70 text-[12px] outline-none px-1" style="width: 28px; height: 24px;"
+                title="配置 GitHub 部署密钥">🔑</button>
+        <input type="password" id="global-api-key" placeholder="GitHub专用(沙盒空)" 
+               class="bg-transparent text-[10px] w-full outline-none text-[var(--color-blue)] font-mono placeholder-[var(--text-muted)] pr-2">
+    </div>
+    
+    <div class="flex items-center bg-[var(--bg-input)] rounded-full px-2.5 py-0.5 border border-[var(--border-color)]">
+        <span id="active-engine-text" class="text-[10px] text-[var(--color-purple)] font-bold mr-2 tracking-tighter">✨ Gemini 3.1 PRO</span>
+        <button onclick="toggleTheme()" class="hover:opacity-70 text-[12px] px-1">🌙</button>
+    </div>
+</div>
            <!-- // 架构优化：放大时钟字号与容器宽度 -->
             <div id="sys-clock" class="font-mono text-[13px] font-medium text-[var(--text-muted)] w-40 text-right hidden lg:block tracking-wide">2026/4/7 20:27:18</div>
         </div>
@@ -2055,7 +2065,16 @@ window.addEventListener('DOMContentLoaded', initAdminEditor);
 
         /* ==================== 核心通信与重试逻辑 ==================== */
         async function fetchWithRetry(modelName, payload, retries = 5) {
-            const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            // 🚀 双轨鉴权：UI瞬时输入优先，留空则自动降级启用沙盒默认 API
+            const uiKey = document.getElementById('global-api-key')?.value.trim();
+            const finalKey = uiKey || apiKey;
+            
+            if (!finalKey) {
+                if(typeof showToast === 'function') showToast("⚠️ 密钥缺失：沙盒模式请配置代码，GitHub 请点击 🔑 输入");
+                throw new Error("Missing API Key");
+            }
+
+            const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${finalKey}`;
             const delays = [1000, 2000, 4000, 8000, 16000];
             for (let i = 0; i < retries; i++) {
                 try {
