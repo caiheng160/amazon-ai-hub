@@ -2089,12 +2089,11 @@ window.addEventListener('DOMContentLoaded', initAdminEditor);
         }
 
         async function fetchAI(parts, sys, isImageGen = false) {
-            // 🚀 修复 404：将模型替换为官方稳定版
-            // 文本/德语 A10 算法逻辑使用 1.5-pro，多模态/生图暂用 1.5-flash
-            const modelName = isImageGen ? "gemini-1.5-flash" : "gemini-1.5-pro";
+            // 🚀 核心修复：更替为当前官方生产环境长期支持（LTS）模型
+            // 文本/SEO 逻辑挂载 2.5-pro，多模态/白底图生成挂载 2.5-flash
+            const modelName = isImageGen ? "gemini-2.5-flash" : "gemini-2.5-pro";
             const payload = { contents: [{ parts }], systemInstruction: { parts: [{ text: sys }] } };
             
-            // 只有特定模型支持直接输出图像模态
             if (isImageGen) {
                 payload.generationConfig = { responseModalities: ["TEXT", "IMAGE"] };
             }
